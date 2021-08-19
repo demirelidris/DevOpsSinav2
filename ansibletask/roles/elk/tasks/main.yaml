@@ -1,0 +1,47 @@
+---
+- name: deploy Docker Compose
+  docker_compose:
+    project_src: /root/idris-demirel/
+    files:
+    - docker-compose.yaml
+
+- name: elasticsearch key
+  apt_key: url="https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+  when: ansible_distribution == "Ubuntu"
+
+- name: elasticsearch repo
+  apt_repository: repo="deb https://artifacts.elastic.co/packages/7.x/apt stable main" filename="elastic-7.x" update_cache=yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install Filebeat
+  apt: pkg=filebeat
+  when: ansible_distribution == "Ubuntu"
+
+- name: Copy base filebeat config file
+  copy: src=/root/idris-demirel/filebeat.yml dest=/etc/filebeat/filebeat.yml
+
+- name: Configure elasticsearch output
+  blockinfile:
+    dest: /etc/filebeat/filebeat.yml
+    insertafter: '# Logstash output'
+    marker: "# {mark} -- Logstash output configured by Ansible"
+    block: |
+      output.elsaticsearch:
+        hosts: ["localhost:9200"]
+
+
+- name: Install metricbeatbeat
+  apt: pkg=metricbeat
+  when: ansible_distribution == "Ubuntu"
+
+- name: Copy metricbeat config file
+  copy: src=/root/idris-demirel/metricbeat.yml dest=/etc/metricbeat/metricbeat.yml
+
+- name: Configure elasticsearch output
+  blockinfile:
+    dest: /etc/metricbeat/metricbeatbeat.yml
+    insertafter: '# Logstash output'
+    marker: "# {mark} -- Logstash output configured by Ansible"
+    block: |
+      output.elsaticsearch:
+        hosts: ["localhost:9200"]
