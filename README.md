@@ -33,5 +33,5 @@ Metricbeat ElasticSearch ‘ün  pluginlerinden birisidir. Metricbeat   ile işl
 
 
 
-
+Son adımda da kibana arayüzünde izlediğimiz verilerin görselleştirmesini yaptım.
 
